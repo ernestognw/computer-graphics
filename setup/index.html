@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script type="module">
+    let x = 0;
+    let y = 0;
+    let z = 3;
+    let renderer;
+    let scene;
+    let camera;
+    let mesh;
+
+    import {
+      WebGLRenderer,
+      Scene,
+      PerspectiveCamera,
+      CylinderGeometry,
+      MeshBasicMaterial,
+      Mesh,
+      Color,
+    } from 'https://unpkg.com/three/build/three.module.js';
+    import { OrbitControls } from 'https://unpkg.com/three@0.125.2/examples/jsm/controls/OrbitControls.js';
+
+    const init = () => {
+      // Renderer
+      renderer = new WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, innerHeight);
+      renderer.setClearColor(new Color(0.2, 0.2, 0.35));
+      document.body.appendChild(renderer.domElement);
+
+      // Scene
+      scene = new Scene();
+
+      // Camera
+      const fov = 60;
+      const aspect = window.innerWidth / window.innerHeight;
+      const near = 0.1;
+      const far = 10000;
+      camera = new PerspectiveCamera(fov, aspect, near, far);
+      camera.position.set(x, y, z);
+
+      // Models
+      const geometry = new CylinderGeometry();
+      const material = new MeshBasicMaterial({ wireframe: true });
+      mesh = new Mesh(geometry, material);
+
+      // Scene hierarchy
+      scene.add(mesh);
+
+      // Draw scene
+      renderer.render(scene, camera);
+
+      // Controles
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.maxPolarAngle = Math.PI * 0.5;
+      controls.minDistance = 1;
+      controls.maxDistance = 20;
+
+      // Render loop
+      renderLoop();
+    };
+
+    const renderLoop = () => {
+      renderer.render(scene, camera);
+      requestAnimationFrame(renderLoop);
+    };
+
+    window.onload = init;
+  </script>
+</body>
+
+</html>
