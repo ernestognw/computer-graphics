@@ -2,18 +2,22 @@
 
 import { GUI } from "https://unpkg.com/three@0.125.2/examples/jsm/libs/dat.gui.module.js";
 import { OrbitControls } from "https://unpkg.com/three@0.125.2/examples/jsm/controls/OrbitControls.js";
-import { Color } from "https://unpkg.com/three/build/three.module.js";
+import { Color, Raycaster, Vector2, GridHelper } from "https://unpkg.com/three/build/three.module.js";
 import { renderer, scene, camera, stats, addFloor } from "./globals/index.js";
 import * as shapeUtils from "./shapes/index.js";
 
 const { create, ...shapes } = shapeUtils;
 
+// GUI
+const gui = new GUI();
+
+// Raycaster & mouse
+const raycaster = new Raycaster();
+const mouse = new Vector2();
+
 const init = () => {
   // Add controls
   new OrbitControls(camera, renderer.domElement);
-
-  // GUI
-  const gui = new GUI();
 
   // Background color
   gui
@@ -43,8 +47,23 @@ const init = () => {
       }
     });
 
-  // Add models available
-  const addMenu = gui.addFolder("Add");
+
+    // Stats
+    gui
+        .add({ toggle: true }, "toggle")
+        .name("All Wireframes")
+        .listen()
+        .onChange((show) => {
+            scene.children.forEach((element, idx)=>{
+                if (idx > 0) {
+                    element.material.wireframe = show
+                }
+            })
+
+        });
+
+    // Add models available
+  const addMenu = gui.addFolder("Add Model");
   Object.entries(shapes).forEach(async ([name, model]) => {
     let counter = 1;
 
@@ -56,7 +75,7 @@ const init = () => {
       .add(
         {
           add: () => {
-            scene.add(create(`${name} ${counter}`, model, gui));
+            scene.add(create(`[Model] ${name} ${counter}`, model, gui));
             counter++;
           },
         },
@@ -82,6 +101,30 @@ function updateScene() {}
 
 // EVENT LISTENERS & HANDLERS
 document.addEventListener("DOMContentLoaded", init);
+
+window.addEventListener( 'mousemove', (event) => {
+    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+}, false );
+
+window.addEventListener('dblclick', () => {
+    raycaster.setFromCamera(mouse, camera);
+    const [_, ...children] = scene.children
+    const intersects = raycaster.intersectObjects(children);
+    if (intersects.length !== 0) {
+        // debugger;
+        const intersected_element = intersects[0];
+        let new_scene_children = []
+        scene.children.forEach((element) => {
+            if (element.uuid == intersected_element.object.uuid) {
+                gui.removeFolder(intersected_element.object.model.menu)
+            } else {
+                new_scene_children.push(element)
+            }
+        })
+        scene.children = new_scene_children
+    }
+}, false)
 
 window.addEventListener("resize", function () {
   renderer.setSize(window.innerWidth, window.innerHeight);

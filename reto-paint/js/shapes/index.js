@@ -23,7 +23,10 @@ const create = (title, geometry, gui) => {
 
   const mesh = new Mesh(geometry, material);
 
+  const geometryMenu = gui.addFolder(title);
+
   mesh.model = {
+    menu: geometryMenu,
     rotation: {
       x: (mesh.rotation.x * 180) / Math.PI,
       y: (mesh.rotation.y * 180) / Math.PI,
@@ -43,8 +46,6 @@ const create = (title, geometry, gui) => {
       mesh.material.color = "white";
     },
   };
-
-  const geometryMenu = gui.addFolder(title);
 
   const positionMenu = geometryMenu.addFolder("Position");
 
@@ -117,9 +118,6 @@ const create = (title, geometry, gui) => {
         `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`
       );
     });
-
-  geometryMenu.add(mesh.model, "posHome").name("Reset");
-
   return mesh;
 };
 

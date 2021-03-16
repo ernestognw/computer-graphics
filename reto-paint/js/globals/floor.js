@@ -1,17 +1,15 @@
 import {
   PlaneGeometry,
   MeshBasicMaterial,
+  GridHelper,
   Mesh,
   Color,
 } from "https://unpkg.com/three/build/three.module.js";
 
 const addFloor = (scene, gui) => {
-  const geometry = new PlaneGeometry(100, 100, 20, 20);
-  const material = new MeshBasicMaterial({
-    color: "white",
-    wireframe: true,
-  });
-  const floor = new Mesh(geometry, material);
+  const floor = new GridHelper(100, 100);
+  floor.name = "Ground";
+  scene.add(floor);
   floor.position.z = 0;
 
   const floorMenu = gui.addFolder("Floor");
